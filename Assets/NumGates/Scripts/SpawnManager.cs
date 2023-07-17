@@ -820,10 +820,15 @@ public class SpawnManager : MonoBehaviour
     {
         // 'Relax' : Save lasted level
         // 'Speed' : Save lasted level and timer
-        StartCoroutine(OnZoom(0, () =>
-        {
-            DestoryAllChildren(parent.transform);
-        }));
+
+        // TODO: Handle timing
+        //StartCoroutine(OnZoom(0, () =>
+        //{
+        //    DestoryAllChildren(parent.transform);
+        //}));
+
+        cameraManager.Zoom(0);
+        DestoryAllChildren(parent.transform);
     }
     #endregion
 
@@ -840,10 +845,14 @@ public class SpawnManager : MonoBehaviour
 
     private void ExitCustom()
     {
-        StartCoroutine(OnZoom(GetZoomLevel(), () =>
-        {
-            DestoryAllChildren(parent.transform);
-        }));
+        // TODO: Handle timing
+        //StartCoroutine(OnZoom(0, () =>
+        //{
+        //    DestoryAllChildren(parent.transform);
+        //}));
+
+        cameraManager.Zoom(0);
+        DestoryAllChildren(parent.transform);
     }
     #endregion
 }
