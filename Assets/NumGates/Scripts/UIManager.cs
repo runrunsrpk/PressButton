@@ -8,14 +8,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] private UIHome uiHome;
     public UIGameplay UIGameplay => uiGameplay;
     [SerializeField] private UIGameplay uiGameplay;
+    public UICustom UICUstom => uiCustom;
+    [SerializeField] private UICustom uiCustom;
 
+    private GameManager gameManager;
     private GameplayManager gameplayManager;
     private LevelManager levelManager;
 
     public void Initialize()
     {
-        gameplayManager = GameManager.Instance.GameplayManager;
-        levelManager = GameManager.Instance.LevelManager;
+        gameManager = GameManager.Instance;
+        gameplayManager = gameManager.GameplayManager;
+        levelManager = gameManager.LevelManager;
 
         EnableAction();
     }
@@ -27,6 +31,9 @@ public class UIManager : MonoBehaviour
 
     private void EnableAction()
     {
+        gameManager.OnEnterCustom += EnterCustom;
+        gameManager.OnExitCustom += ExitCustom;
+
         gameplayManager.OnStartGame += StartGame;
         gameplayManager.OnPlayGame += PlayGame;
         gameplayManager.OnEndGame += EndGame;
@@ -40,6 +47,9 @@ public class UIManager : MonoBehaviour
 
     private void DisableAction()
     {
+        gameManager.OnEnterCustom -= EnterCustom;
+        gameManager.OnExitCustom -= ExitCustom;
+
         gameplayManager.OnStartGame -= StartGame;
         gameplayManager.OnPlayGame -= PlayGame;
         gameplayManager.OnEndGame -= EndGame;
@@ -104,6 +114,20 @@ public class UIManager : MonoBehaviour
     private void UpdateLevel(int level)
     {
         uiGameplay.SetLevelText(level);
+    }
+    #endregion
+
+    #region Game Action
+    private void EnterCustom()
+    {
+        uiCustom.Show();
+        uiHome.Hide();
+    }
+
+    private void ExitCustom()
+    {
+        uiCustom.Hide();
+        uiHome.Show();
     }
     #endregion
 }

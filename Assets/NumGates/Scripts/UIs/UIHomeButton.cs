@@ -14,8 +14,12 @@ public class UIHomeButton : MonoBehaviour
     [Header("Other UI")]
     [SerializeField] private UIModeButton uiModeButton;
 
+    private GameManager gameManager;
+
     private void OnEnable()
     {
+        gameManager = GameManager.Instance;
+
         playButton.onClick.AddListener(OnClickPlay);
         customButton.onClick.AddListener(OnClickCustom);
         optionsButton.onClick.AddListener(OnClickOptions);
@@ -49,6 +53,7 @@ public class UIHomeButton : MonoBehaviour
     private void OnClickCustom()
     {
         // Show custome scene
+        GameManager.Instance.OnEnterCustom?.Invoke();
     }
 
     private void OnClickOptions()

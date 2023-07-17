@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,8 +6,6 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
-    public const int MAX_LEVEL = 100;
 
     public SpawnManager SpawnManager => spawnManager;
     [SerializeField] private SpawnManager spawnManager;
@@ -18,6 +17,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] private LevelManager levelManager;
     public UIManager UIManager => uiManager;
     [SerializeField] private UIManager uiManager;
+
+    public Action OnEnterCustom;
+    public Action OnExitCustom;
+
+#if RELEASE_BUILD
+    public const int MAX_LEVEL = 1000;
+#else
+    public const int MAX_LEVEL = 100;
+    public const int MAX_ROW = 4;
+    public const int MAX_COLUMN = 6;
+#endif
+
 
     private void Awake()
     {
@@ -60,8 +71,7 @@ public class GameManager : MonoBehaviour
         uiManager?.Terminate();
     }
 
-    public int GetMaxGameLevel()
-    {
-        return MAX_LEVEL;
-    }
+    public int GetMaxGameLevel() => MAX_LEVEL;
+    public int GetMaxRow() => MAX_ROW;
+    public int GetMaxColumn() => MAX_COLUMN;
 }

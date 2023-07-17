@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System.Reflection;
+using DG.Tweening.Core.Easing;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -24,14 +25,16 @@ public class SpawnManager : MonoBehaviour
 
     private float movingTime = 0.5f;
 
+    private GameManager gameManager;
     private GameplayManager gameplayManager;
     private CameraManager cameraManager;
 
     #region Initialize
     public void Initialize()
     {
-        gameplayManager = GameManager.Instance.GameplayManager;
-        cameraManager = GameManager.Instance.CameraManager;
+        gameManager = GameManager.Instance;
+        gameplayManager = gameManager.GameplayManager;
+        cameraManager = gameManager.CameraManager;
 
         EnableAction();
     }
@@ -43,6 +46,9 @@ public class SpawnManager : MonoBehaviour
 
     private void EnableAction()
     {
+        gameManager.OnEnterCustom += EnterCustom;
+        gameManager.OnExitCustom += ExitCustom;
+
         gameplayManager.OnStartGame += StartGame;
         gameplayManager.OnPlayGame += PlayGame;
         gameplayManager.OnEndGame += EndGame;
@@ -54,6 +60,9 @@ public class SpawnManager : MonoBehaviour
 
     private void DisableAction()
     {
+        gameManager.OnEnterCustom -= EnterCustom;
+        gameManager.OnExitCustom -= ExitCustom;
+
         gameplayManager.OnStartGame -= StartGame;
         gameplayManager.OnPlayGame -= PlayGame;
         gameplayManager.OnEndGame -= EndGame;
@@ -672,6 +681,44 @@ public class SpawnManager : MonoBehaviour
     }
     #endregion
 
+    #region Custom Spawner
+    private void SpawnCustomRowAndColumn(int row, int col)
+    {
+        this.row = row;
+        this.col = col;
+
+        StartCoroutine(OnZoom(GetZoomLevel(), () =>
+        {
+            StartCoroutine(OnSpawnCustomRowAndColumn(row, col));
+        }));
+    }
+
+    private IEnumerator OnSpawnCustomRowAndColumn(int row, int col)
+    {
+        DestoryAllChildren(parent.transform);
+
+        yield return new WaitForSecondsRealtime(spawnDelay);
+
+        float xPos = ((1 * (col - 1)) + ((col - 1) * spawnXOffset)) / 2;
+        float yPos = ((1 * (row - 1)) + ((row - 1) * spawnYOffset)) / 2;
+
+        parent.transform.position = new Vector3(-xPos, yPos, 0f);
+
+        for (int x = 0; x < row; x++)
+        {
+            for (int y = 0; y < col; y++)
+            {
+                GameObject button = Instantiate(buttonPrefs, parent.transform);
+                if (x == 0 && y == 0) starter = button.transform;
+                button.name = GetButtonName();
+                button.transform.position = GetGridPosition(y, x);
+            }
+        }
+
+        yield return new WaitForSecondsRealtime(spawnDelay);
+    }
+    #endregion
+
     #region Helper
     private IEnumerator OnMovingParent(Vector3 target, Action callback)
     {
@@ -773,8 +820,30 @@ public class SpawnManager : MonoBehaviour
     {
         // 'Relax' : Save lasted level
         // 'Speed' : Save lasted level and timer
-        cameraManager.Zoom(0);
-        DestoryAllChildren(parent.transform);
+        StartCoroutine(OnZoom(0, () =>
+        {
+            DestoryAllChildren(parent.transform);
+        }));
+    }
+    #endregion
+
+    #region Game Action
+    private void EnterCustom()
+    {
+        if (parent == null)
+        {
+            parent = new GameObject("SpawnerParent");
+        }
+
+        SpawnCustomRowAndColumn(gameManager.GetMaxRow(), gameManager.GetMaxColumn());
+    }
+
+    private void ExitCustom()
+    {
+        StartCoroutine(OnZoom(GetZoomLevel(), () =>
+        {
+            DestoryAllChildren(parent.transform);
+        }));
     }
     #endregion
 }
