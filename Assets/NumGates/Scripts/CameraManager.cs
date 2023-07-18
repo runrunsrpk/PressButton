@@ -6,6 +6,7 @@ using UnityEngine.U2D;
 
 public class CameraManager : MonoBehaviour
 {
+    public Camera MainCamera => mainCamera;
     [SerializeField] private Camera mainCamera;
     public float ZoomSpeed => zoomSpeed;
     [SerializeField] private float zoomSpeed;

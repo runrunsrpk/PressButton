@@ -28,6 +28,7 @@ public class SpawnManager : MonoBehaviour
     private GameManager gameManager;
     private GameplayManager gameplayManager;
     private CameraManager cameraManager;
+    private UIManager uiManager;
 
     #region Initialize
     public void Initialize()
@@ -35,6 +36,7 @@ public class SpawnManager : MonoBehaviour
         gameManager = GameManager.Instance;
         gameplayManager = gameManager.GameplayManager;
         cameraManager = gameManager.CameraManager;
+        uiManager = gameManager.UIManager;
 
         EnableAction();
     }
@@ -157,6 +159,11 @@ public class SpawnManager : MonoBehaviour
     public int GetMaxLevel()
     {
         return GetMaxWave() * row;
+    }
+
+    public Transform GetSpawnerParent()
+    {
+        return parent.transform;
     }
     #endregion
 
@@ -690,6 +697,7 @@ public class SpawnManager : MonoBehaviour
         StartCoroutine(OnZoom(GetZoomLevel(), () =>
         {
             StartCoroutine(OnSpawnCustomRowAndColumn(row, col));
+            //uiManager.UICUstom.InitUILockedButton();
         }));
     }
 
@@ -703,15 +711,18 @@ public class SpawnManager : MonoBehaviour
         float yPos = ((1 * (row - 1)) + ((row - 1) * spawnYOffset)) / 2;
 
         parent.transform.position = new Vector3(-xPos, yPos, 0f);
-
+        
         for (int x = 0; x < row; x++)
         {
             for (int y = 0; y < col; y++)
             {
                 GameObject button = Instantiate(buttonPrefs, parent.transform);
-                if (x == 0 && y == 0) starter = button.transform;
+                if (x == 0 && y == 0) { starter = button.transform; }
                 button.name = GetButtonName();
                 button.transform.position = GetGridPosition(y, x);
+
+                uiManager.UICUstom.CreateUILockedButton(button.transform.localPosition, parent.transform.localPosition);
+                //yield return new WaitForSecondsRealtime(spawnDelay);
             }
         }
 
@@ -853,6 +864,7 @@ public class SpawnManager : MonoBehaviour
 
         cameraManager.Zoom(0);
         DestoryAllChildren(parent.transform);
+        uiManager.UICUstom.DestroyUILockedButton();
     }
     #endregion
 }
